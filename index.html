@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>roommate · ₹ tracker · Rupankar, Jyotish, Kishor, Gogon</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    body {
+      background: #f4f7fc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.2rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .card {
+      max-width: 760px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 2rem;
+      box-shadow: 0 20px 35px -6px rgba(0,20,40,0.12), 0 5px 12px rgba(0,0,0,0.02);
+      padding: 2rem 1.8rem;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .floating-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .floating-icon {
+      position: absolute;
+      color: #809ab3;
+      opacity: 0.12;
+      font-size: 1.8rem;
+      user-select: none;
+      animation: floatDown linear infinite;
+      transform: translateY(-100%);
+    }
+    @keyframes floatDown {
+      0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.2; }
+      90% { opacity: 0.15; }
+      100% { transform: translateY(110vh) rotate(10deg); opacity: 0; }
+    }
+    .header, .total-section, .add-panel, .recent-section, .profile-row, .history-panel, .footer-note, .monthly-panel {
+      position: relative;
+      z-index: 2;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 650;
+      color: #192841;
+      letter-spacing: -0.3px;
+      background: #ecf2f9;
+      padding: 0.4rem 1.2rem;
+      border-radius: 60px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header h1 i {
+      color: #2f4b7c;
+    }
+    .badge {
+      background: #dae5f0;
+      color: #1e3349;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .total-section {
+      background: #f0f5fd;
+      border-radius: 2rem;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #e0eaf4;
+    }
+    .total-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #3e5570;
+      font-weight: 600;
+    }
+    .total-value {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #0f263f;
+    }
+    .total-value .rupee {
+      font-size: 1.8rem;
+      margin-right: 0.2rem;
+      color: #1f3b5c;
+    }
+    .add-panel {
+      background: #ffffff;
+      border-radius: 1.8rem;
+      padding: 1.6rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.02);
+      border: 1px solid #e5ecf3;
+      margin-bottom: 2rem;
+    }
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #25415d;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title i {
+      color: #3f6ab3;
+    }
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .form-group {
+      flex: 1 1 160px;
+    }
+    .form-group label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #547190;
+      letter-spacing: 0.3px;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: white;
+      border: 1.5px solid #e1eaf1;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: 0.15s;
+    }
+    .form-group input:focus {
+      border-color: #3f6ab3;
+      box-shadow: 0 0 0 3px rgba(63,106,179,0.1);
+    }
+    .payer-group {
+      display: flex;
+      gap: 0.7rem;
+      margin-top: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .payer-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid #cbd9ea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #1f3a5e;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .payer-circle.active {
+      background: #1e3a5f;
+      border-color: #1e3a5f;
+      color: white;
+      transform: scale(1.02);
+    }
+    .payer-circle[data-payer="R"]:hover { border-color: #3b71ca; }
+    .payer-circle[data-payer="J"]:hover { border-color: #2b7a4b; }
+    .payer-circle[data-payer="K"]:hover { border-color: #b6573a; }
+    .payer-circle[data-payer="G"]:hover { border-color: #a162cc; }
+    .category-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 0.8rem 0 1.2rem;
+    }
+    .chip {
+      background: #f2f6fb;
+      border: 1.5px solid #dce6f2;
+      border-radius: 50px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #1f3b5c;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.1s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .chip i {
+      font-size: 1rem;
+      color: #5479b0;
+    }
+    .chip.selected {
+      background: #1e3a5f;
+      border-color: #1e3a5f;
+      color: white;
+    }
+    .chip.selected i {
+      color: white;
+    }
+    .other-custom {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      margin-top: 0.3rem;
+    }
+    .other-custom input {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      border-radius: 50px;
+      border: 1.5px solid #dce6f2;
+      background: white;
+      font-size: 0.9rem;
+    }
+    .receipt-area {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      background: #f4f9ff;
+      border-radius: 60px;
+      padding: 0.3rem 0.3rem 0.3rem 1.2rem;
+      border: 1px dashed #9db9d9;
+      margin: 0.8rem 0 1rem;
+    }
+    .receipt-btn {
+      background: white;
+      border: 1px solid #b6cee8;
+      border-radius: 60px;
+      padding: 0.65rem 1.3rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #1e3a5f;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: 0.1s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+    .receipt-btn:hover {
+      background: #ecf3fc;
+    }
+    #file-name {
+      font-size: 0.85rem;
+      color: #2b4b74;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .hidden-input {
+      display: none;
+    }
+    .save-btn {
+      background: #1e3a5f;
+      border: none;
+      border-radius: 60px;
+      padding: 1rem 1.5rem;
+      width: 100%;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      border: 1px solid #173350;
+      margin-top: 0.5rem;
+      transition: 0.15s;
+    }
+    .save-btn:hover {
+      background: #143150;
+    }
+    .recent-section {
+      margin: 2rem 0 1.5rem;
+    }
+    .recent-list {
+      list-style: none;
+      background: #fbfdff;
+      border-radius: 1.5rem;
+      padding: 0.2rem 0.5rem;
+      border: 1px solid #e9f0f8;
+      min-height: 100px;
+    }
+    .recent-placeholder {
+      padding: 1.5rem;
+      text-align: center;
+      color: #99b6d3;
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+    /* new recent item layout */
+    .recent-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #eef4fa;
+    }
+    .recent-item:last-child {
+      border-bottom: none;
+    }
+    .recent-left-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .recent-right-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .recent-date {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #5f7d9e;
+      background: #eef4fa;
+      padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+      white-space: nowrap;
+    }
+    .recent-desc {
+      font-weight: 600;
+      color: #172d44;
+      font-size: 0.95rem;
+    }
+    .recent-amount {
+      font-weight: 700;
+      color: #1e3a5f;
+      background: #e2ecf9;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+    }
+    .recent-payer {
+      background: #203a58;
+      color: white;
+      border-radius: 50%;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .profile-row {
+      display: flex;
+      justify-content: space-around;
+      background: #f2f8ff;
+      border-radius: 100px;
+      padding: 1rem 0.5rem;
+      margin: 1.8rem 0 1.2rem;
+    }
+    .profile-icon {
+      text-align: center;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .profile-icon:hover {
+      transform: translateY(-3px);
+    }
+    .profile-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 0 auto 4px;
+    }
+    .profile-icon[data-person="R"] .profile-circle { border-color: #3b71ca; background: #eaf1fe; }
+    .profile-icon[data-person="J"] .profile-circle { border-color: #2b7a4b; background: #e6f5ea; }
+    .profile-icon[data-person="K"] .profile-circle { border-color: #b6573a; background: #feeeeb; }
+    .profile-icon[data-person="G"] .profile-circle { border-color: #a162cc; background: #f5edff; }
+    .profile-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #2b4a70;
+      background: #e5eefb;
+      padding: 0.2rem 0.6rem;
+      border-radius: 30px;
+    }
+    .history-panel {
+      background: #ffffff;
+      border-radius: 1.8rem;
+      padding: 1.4rem 1.4rem;
+      border: 1px solid #e2ebf5;
+      margin-top: 1rem;
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .history-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1e3a5f;
+    }
+    .close-history {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #809ab3;
+    }
+    .history-list {
+      list-style: none;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px dashed #d7e2f0;
+    }
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    .history-date {
+      font-size: 0.75rem;
+      background: #eef4fa;
+      padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+      color: #1e3a5f;
+    }
+    .history-desc {
+      flex: 1;
+      margin-left: 1rem;
+      font-weight: 500;
+      color: #1b3149;
+    }
+    .history-amount {
+      font-weight: 700;
+      color: #15355a;
+    }
+    .footer-note {
+      font-size: 0.65rem;
+      color: #99b0c9;
+      text-align: center;
+      margin-top: 1.8rem;
+    }
+    .monthly-panel {
+      margin-top: 1.5rem;
+      background: #f8fafd;
+      border-radius: 1.8rem;
+      padding: 1.4rem;
+      border: 1px solid #d9e6f5;
+    }
+    .monthly-summary-item {
+      display: inline-block;
+      background: white;
+      border-radius: 40px;
+      padding: 0.3rem 1rem;
+      margin: 0.2rem 0.5rem 0.2rem 0;
+      border: 1px solid #ceddec;
+      font-size: 0.85rem;
+    }
+    .monthly-summary-item strong {
+      color: #1e3a5f;
+    }
+    .mobile-note {
+      font-size: 0.75rem;
+      color: #7a95b0;
+      margin-top: 0.5rem;
+      background: #ecf2f9;
+      padding: 0.3rem 0.8rem;
+      border-radius: 30px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="floating-bg" id="floatingBg"></div>
+
+  <div class="header">
+    <h1><i class="fas fa-home"></i> roommate</h1>
+    <span class="badge">R · J · K · G</span>
+  </div>
+
+  <div class="total-section">
+    <span class="total-label"><i class="far fa-calendar-alt"></i> MONTHLY TOTAL</span>
+    <span class="total-value"><span class="rupee">₹</span><span id="totalSpend">0.00</span></span>
+  </div>
+
+  <div class="add-panel">
+    <div class="section-title"><i class="fas fa-plus-circle"></i> ADD EXPENSE</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="expDate" value="2025-04-01">
+      </div>
+      <div class="form-group">
+        <label>Amount (₹)</label>
+        <input type="number" id="expAmount" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div style="margin-bottom: 1rem;">
+      <label style="font-size:0.7rem; font-weight:600; color:#547190; text-transform:uppercase;">Payer</label>
+      <div class="payer-group" id="payerGroup">
+        <span class="payer-circle active" data-payer="R" title="Rupankar">R</span>
+        <span class="payer-circle" data-payer="J" title="Jyotish">J</span>
+        <span class="payer-circle" data-payer="K" title="Kishor">K</span>
+        <span class="payer-circle" data-payer="G" title="Gogon">G</span>
+      </div>
+    </div>
+    <label style="font-size:0.7rem; font-weight:600; color:#547190; text-transform:uppercase;">Category</label>
+    <div class="category-chips" id="categoryChips">
+      <span class="chip selected" data-cat="Groceries"><i class="fas fa-shopping-basket"></i> Groceries</span>
+      <span class="chip" data-cat="Electricity"><i class="fas fa-bolt"></i> Electricity</span>
+      <span class="chip" data-cat="Rent"><i class="fas fa-building"></i> Rent</span>
+      <span class="chip" data-cat="Internet"><i class="fas fa-wifi"></i> Internet</span>
+      <span class="chip" data-cat="Eating out"><i class="fas fa-utensils"></i> Eating out</span>
+      <span class="chip" data-cat="Other"><i class="fas fa-tag"></i> Other</span>
+    </div>
+    <div class="other-custom" id="otherCustom" style="display: none;">
+      <input type="text" id="customDesc" placeholder="e.g. maintenance, shopping...">
+    </div>
+    <div style="margin: 1rem 0 0.5rem;">
+      <label style="font-size:0.7rem; font-weight:600; color:#547190; text-transform:uppercase;">Receipt (optional)</label>
+      <div class="receipt-area">
+        <span class="receipt-btn" id="uploadBtn"><i class="fas fa-cloud-upload-alt"></i> UPLOAD</span>
+        <span id="fileName">No file chosen</span>
+        <input type="file" id="receiptFile" class="hidden-input" accept="image/*,.pdf">
+      </div>
+    </div>
+    <button class="save-btn" id="saveExpenseBtn"><i class="fas fa-save"></i> SAVE EXPENSE</button>
+  </div>
+
+  <!-- RECENT SECTION -->
+  <div class="recent-section">
+    <div class="section-title"><i class="far fa-clock"></i> RECENT</div>
+    <ul class="recent-list" id="recentList">
+      <div class="recent-placeholder">⏳ Loading from Firebase...</div>
+    </ul>
+  </div>
+
+  <div class="profile-row">
+    <div class="profile-icon" data-person="R">
+      <div class="profile-circle">R</div>
+      <span class="profile-label">Rupankar</span>
+    </div>
+    <div class="profile-icon" data-person="J">
+      <div class="profile-circle">J</div>
+      <span class="profile-label">Jyotish</span>
+    </div>
+    <div class="profile-icon" data-person="K">
+      <div class="profile-circle">K</div>
+      <span class="profile-label">Kishor</span>
+    </div>
+    <div class="profile-icon" data-person="G">
+      <div class="profile-circle">G</div>
+      <span class="profile-label">Gogon</span>
+    </div>
+  </div>
+
+  <div class="history-panel">
+    <div class="history-header">
+      <h3><i class="far fa-user"></i> <span id="historyPerson">Profile</span> expenses</h3>
+      <button class="close-history" id="closeHistoryBtn">&times;</button>
+    </div>
+    <div id="historyContent">
+      <div style="color:#a3bbd5; font-style:italic; padding:0.6rem 0; text-align:center;">⇧ Click any profile ⇧</div>
+    </div>
+  </div>
+
+  <!-- Monthly report panel -->
+  <div class="monthly-panel">
+    <div class="section-title"><i class="fas fa-file-pdf"></i> MONTHLY REPORT</div>
+    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+      <div>
+        <label style="font-size:0.7rem; font-weight:600; color:#547190;">Select month</label>
+        <input type="month" id="reportMonth" value="2025-04" style="padding:0.5rem; border-radius:30px; border:1.5px solid #d0ddee;">
+      </div>
+      <button id="generatePdfBtn" style="background:#1e3a5f; color:white; border:none; border-radius:60px; padding:0.6rem 1.5rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><i class="fas fa-download"></i> PDF Report</button>
+    </div>
+    <div id="monthlySummary" style="margin-top:1rem; font-size:0.9rem;"></div>
+    <div class="mobile-note">
+      <i class="fas fa-mobile-alt"></i> On mobile: after tapping "OK", the PDF may preview – tap the download icon to save it to your phone.
+    </div>
+  </div>
+
+  <div class="footer-note">connected to Firebase · Rupankar, Jyotish, Kishor, Gogon</div>
+</div>
+<script type="module">
+  // Firebase imports & config
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js';
+  import { getDatabase, ref, push, onValue } from 'https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAap2GFEa6778X2v6tRj8ec-eSsR8tXYDk",
+    authDomain: "project-12129cb4-c223-4008-92b.firebaseapp.com",
+    databaseURL: "https://project-12129cb4-c223-4008-92b-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "project-12129cb4-c223-4008-92b",
+    storageBucket: "project-12129cb4-c223-4008-92b.firebasestorage.app",
+    messagingSenderId: "44587974750",
+    appId: "1:44587974750:web:008b2184de87e58b3834cf"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const expensesRef = ref(db, 'expenses');
+
+  // DOM elements
+  const totalSpan = document.getElementById('totalSpend');
+  const recentList = document.getElementById('recentList');
+  const historyPersonSpan = document.getElementById('historyPerson');
+  const historyContent = document.getElementById('historyContent');
+  const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+  const dateInput = document.getElementById('expDate');
+  const amountInput = document.getElementById('expAmount');
+  const chips = document.querySelectorAll('.chip');
+  const otherCustomDiv = document.getElementById('otherCustom');
+  const customDescInput = document.getElementById('customDesc');
+  const payerCircles = document.querySelectorAll('.payer-circle');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const fileInput = document.getElementById('receiptFile');
+  const fileNameSpan = document.getElementById('fileName');
+  const saveBtn = document.getElementById('saveExpenseBtn');
+  const reportMonthInput = document.getElementById('reportMonth');
+  const generatePdfBtn = document.getElementById('generatePdfBtn');
+  const monthlySummaryDiv = document.getElementById('monthlySummary');
+
+  let selectedPayer = 'R';
+  let selectedCategory = 'Groceries';
+  let transactions = [];
+
+  // ---------- Helper functions ----------
+  function formatShort(dateStr) {
+    if (!dateStr) return '??';
+    try {
+      const d = new Date(dateStr + 'T12:00');
+      if (isNaN(d.getTime())) return '??';
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } catch {
+      return '??';
+    }
+  }
+
+  function formatMonthYear(year, month) {
+    const d = new Date(year, month-1, 1);
+    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  function updateTotal() {
+    const total = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+    totalSpan.textContent = total.toFixed(2);
+  }
+
+  // ========== UPDATED renderRecent with timestamp sorting ==========
+  function renderRecent() {
+    if (!transactions.length) {
+      recentList.innerHTML = `<div class="recent-placeholder">✨ No expenses yet. Add one above.</div>`;
+      return;
+    }
+
+    // Sort by timestamp descending (most recent first)
+    const sorted = [...transactions].sort((a, b) => {
+      // Use timestamp if available; fallback to parsing date (though timestamp should be there)
+      const timeA = a.timestamp || new Date(a.date + 'T12:00').getTime();
+      const timeB = b.timestamp || new Date(b.date + 'T12:00').getTime();
+      return timeB - timeA;
+    });
+
+    const latest = sorted.slice(0, 3);
+    let html = '';
+
+    latest.forEach(t => {
+      const dateStr = formatShort(t.date);
+      const desc = t.description || '?';
+      const amount = t.amount ? t.amount.toFixed(2) : '0.00';
+      const payer = t.paidBy || '?';
+      const receiptIcon = t.receipt ? ' 📎' : '';
+
+      html += `
+        <li class="recent-item">
+          <div class="recent-left-group">
+            <span class="recent-date">${dateStr}</span>
+            <span class="recent-desc">${desc}${receiptIcon}</span>
+          </div>
+          <div class="recent-right-group">
+            <span class="recent-amount">₹${amount}</span>
+            <span class="recent-payer">${payer}</span>
+          </div>
+        </li>
+      `;
+    });
+
+    recentList.innerHTML = html;
+  }
+
+  function showHistory(person) {
+    const filtered = transactions.filter(t => t.paidBy === person).sort((a,b) => new Date(b.date) - new Date(a.date));
+    historyPersonSpan.textContent = person;
+    if (filtered.length === 0) {
+      historyContent.innerHTML = `<div style="color:#a3bbd5; font-style:italic; padding:0.6rem 0;">😕 ${person} hasn’t paid anything yet.</div>`;
+      return;
+    }
+    const total = filtered.reduce((s,t) => s + t.amount, 0).toFixed(2);
+    let html = `<div style="margin-bottom:10px; font-size:0.8rem; background:#e5effa; padding:0.3rem 1rem; border-radius:30px; display:inline-block;">💰 total ₹${total}</div>`;
+    html += '<ul class="history-list">';
+    filtered.forEach(t => {
+      html += `
+        <li class="history-item">
+          <span class="history-date">${formatShort(t.date)}</span>
+          <span class="history-desc">${t.description} ${t.receipt ? '📎' : ''}</span>
+          <span class="history-amount">₹${t.amount.toFixed(2)}</span>
+        </li>
+      `;
+    });
+    html += '</ul>';
+    historyContent.innerHTML = html;
+  }
+
+  function resetHistory() {
+    historyPersonSpan.textContent = 'Profile';
+    historyContent.innerHTML = `<div style="color:#a3bbd5; font-style:italic; padding:0.6rem 0; text-align:center;">⇧ Click any profile ⇧</div>`;
+  }
+
+  function updateMonthlySummary() {
+    const [year, month] = reportMonthInput.value.split('-').map(Number);
+    const filtered = transactions.filter(t => {
+      const [y, m] = (t.date || '').split('-').map(Number);
+      return y === year && m === month;
+    });
+    if (filtered.length === 0) {
+      monthlySummaryDiv.innerHTML = '<span style="color:#99b6d3;">No expenses for this month.</span>';
+      return;
+    }
+    const totals = {};
+    filtered.forEach(t => totals[t.paidBy] = (totals[t.paidBy] || 0) + t.amount);
+    const persons = ['R','J','K','G'];
+    let html = '<div style="margin-bottom:0.5rem; font-weight:500;">Per person total:</div>';
+    persons.forEach(p => {
+      const amt = totals[p] || 0;
+      html += `<span class="monthly-summary-item"><strong>${p}</strong> ₹${amt.toFixed(2)}</span>`;
+    });
+    const overall = filtered.reduce((s,t) => s + t.amount, 0);
+    html += `<span class="monthly-summary-item" style="background:#e2ecf9;"><strong>total</strong> ₹${overall.toFixed(2)}</span>`;
+    monthlySummaryDiv.innerHTML = html;
+  }
+
+  // PDF generation with confirmation
+  function generatePDF() {
+    if (!confirm('Download monthly report as PDF?')) return;
+
+    const [year, month] = reportMonthInput.value.split('-').map(Number);
+    const monthName = formatMonthYear(year, month);
+    const filtered = transactions.filter(t => {
+      const [y, m] = (t.date || '').split('-').map(Number);
+      return y === year && m === month;
+    });
+
+    if (filtered.length === 0) {
+      alert('No expenses for this month.');
+      return;
+    }
+
+    const sorted = [...filtered].sort((a,b) => new Date(a.date) - new Date(b.date));
+    const bodyRows = sorted.map(t => [t.date, t.description, t.paidBy, '₹' + t.amount.toFixed(2)]);
+    const personTotals = {};
+    sorted.forEach(t => personTotals[t.paidBy] = (personTotals[t.paidBy] || 0) + t.amount);
+    const summaryRows = Object.entries(personTotals).map(([person, total]) => [person, '₹' + total.toFixed(2)]);
+    const overallTotal = sorted.reduce((s,t) => s + t.amount, 0);
+    summaryRows.push(['TOTAL', '₹' + overallTotal.toFixed(2)]);
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`Roommate Expenses – ${monthName}`, 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 28);
+
+    doc.autoTable({
+      startY: 35,
+      head: [['Date', 'Description', 'Paid by', 'Amount']],
+      body: bodyRows,
+      theme: 'striped',
+      headStyles: { fillColor: [30, 58, 95] },
+      styles: { fontSize: 9 }
+    });
+
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 10,
+      head: [['Person', 'Total']],
+      body: summaryRows,
+      theme: 'striped',
+      headStyles: { fillColor: [30, 58, 95] },
+      styles: { fontSize: 9 }
+    });
+
+    const pdfBlob = doc.output('blob');
+    const fileName = `roommates_${year}_${month}.pdf`;
+
+    if (window.navigator && window.navigator.msSaveBlob) {
+      window.navigator.msSaveBlob(pdfBlob, fileName);
+      return;
+    }
+
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- Firebase listener ----------
+  onValue(expensesRef, (snapshot) => {
+    const data = snapshot.val();
+    transactions = [];
+    if (data) {
+      Object.keys(data).forEach(key => {
+        transactions.push({ id: key, ...data[key] });
+      });
+    }
+    updateTotal();
+    renderRecent();
+    const currentPerson = historyPersonSpan.textContent;
+    if (currentPerson !== 'Profile' && ['R','J','K','G'].includes(currentPerson)) {
+      showHistory(currentPerson);
+    } else {
+      resetHistory();
+    }
+    updateMonthlySummary();
+  }, (error) => {
+    console.error('Firebase read failed:', error);
+    recentList.innerHTML = `<div class="recent-placeholder">⚠️ Error loading data.</div>`;
+  });
+
+  // ---------- UI event listeners ----------
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedCategory = chip.getAttribute('data-cat');
+      otherCustomDiv.style.display = selectedCategory === 'Other' ? 'flex' : 'none';
+      if (selectedCategory !== 'Other') customDescInput.value = '';
+    });
+  });
+
+  payerCircles.forEach(circle => {
+    circle.addEventListener('click', () => {
+      payerCircles.forEach(c => c.classList.remove('active'));
+      circle.classList.add('active');
+      selectedPayer = circle.getAttribute('data-payer');
+    });
+  });
+
+  uploadBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => {
+    fileNameSpan.textContent = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
+  });
+
+  // ---------- Save expense with optimistic update ----------
+  function addExpenseToFirebase() {
+    const date = dateInput.value;
+    const amount = parseFloat(amountInput.value);
+    let description = selectedCategory;
+    if (selectedCategory === 'Other') {
+      const custom = customDescInput.value.trim();
+      if (!custom) { alert('Please enter a description for "Other" category'); return; }
+      description = custom;
+    }
+    if (!date) { alert('Pick a date'); return; }
+    if (isNaN(amount) || amount <= 0) { alert('Enter valid amount'); return; }
+
+    const receiptName = fileInput.files[0] ? fileInput.files[0].name : '';
+
+    // Create a temporary expense object with a unique temporary ID
+    const tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+    const tempExpense = {
+      id: tempId,
+      date,
+      amount,
+      description,
+      paidBy: selectedPayer,
+      receipt: receiptName,
+      timestamp: Date.now()   // ensures correct order
+    };
+
+    // Optimistically add to local transactions and re-render
+    transactions.push(tempExpense);
+    renderRecent();
+    updateTotal();
+
+    // Send to Firebase
+    push(expensesRef, {
+      date,
+      amount,
+      description,
+      paidBy: selectedPayer,
+      receipt: receiptName,
+      timestamp: Date.now()
+    })
+      .then(() => {
+        // Success – remove temporary entry (listener will add the real one)
+        transactions = transactions.filter(t => t.id !== tempId);
+      })
+      .catch((error) => {
+        console.error('Error adding expense: ', error);
+        // Remove the optimistic entry on failure
+        transactions = transactions.filter(t => t.id !== tempId);
+        renderRecent();
+        updateTotal();
+        alert('Failed to save expense. Please try again.');
+      });
+
+    // Clear the form
+    amountInput.value = '';
+    chips.forEach(c => c.classList.remove('selected'));
+    document.querySelector('.chip[data-cat="Groceries"]').classList.add('selected');
+    selectedCategory = 'Groceries';
+    otherCustomDiv.style.display = 'none';
+    customDescInput.value = '';
+    payerCircles.forEach(c => c.classList.remove('active'));
+    document.querySelector('.payer-circle[data-payer="R"]').classList.add('active');
+    selectedPayer = 'R';
+    fileInput.value = '';
+    fileNameSpan.textContent = 'No file chosen';
+  }
+
+  saveBtn.addEventListener('click', addExpenseToFirebase);
+
+  document.querySelectorAll('.profile-icon').forEach(icon => {
+    icon.addEventListener('click', () => showHistory(icon.getAttribute('data-person')));
+  });
+  closeHistoryBtn.addEventListener('click', resetHistory);
+  reportMonthInput.addEventListener('change', updateMonthlySummary);
+  generatePdfBtn.addEventListener('click', generatePDF);
+
+  const today = new Date().toISOString().slice(0,10);
+  dateInput.value = today;
+  reportMonthInput.value = today.slice(0,7);
+
+  // Floating icons background
+  function createFloatingIcons() {
+    const bg = document.getElementById('floatingBg');
+    const icons = ['fa-indian-rupee-sign','fa-shopping-basket','fa-bolt','fa-building','fa-wifi','fa-utensils','fa-tag','fa-file-invoice','fa-water','fa-lightbulb','fa-mobile-alt','fa-car','fa-film','fa-coffee'];
+    for (let i = 0; i < 30; i++) {
+      const icon = document.createElement('i');
+      icon.className = `fas ${icons[Math.floor(Math.random() * icons.length)]} floating-icon`;
+      icon.style.fontSize = (Math.floor(Math.random() * 24) + 16) + 'px';
+      icon.style.left = Math.random() * 100 + '%';
+      icon.style.animationDuration = (Math.random() * 15 + 12) + 's';
+      icon.style.animationDelay = (Math.random() * 10) + 's';
+      bg.appendChild(icon);
+    }
+  }
+  createFloatingIcons();
+</script>
+</body>
+</html>
